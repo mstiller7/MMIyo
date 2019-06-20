@@ -169,7 +169,7 @@ def get_myo(mac=None):
     while True:
         for i in btle.Scanner(0).scan(1):
             for j in i.getScanData():
-                if j[0] == 6 and j[2] == '4248124a7f2c4847b9de04a9010006d5':
+                if j[0] == 6 and j[2] == 'd5060001-a904-deb9-4748-2c7f4a124842': # '4248124a7f2c4847b9de04a9010006d5':
                     return str(i.addr).upper()
 
 class ReadHandle:
