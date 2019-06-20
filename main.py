@@ -43,13 +43,14 @@ myo_device.services.set_leds([128, 128, 255], [128, 128, 255])
 # short vibration.
 myo_device.services.vibrate(1)
 
-
-myo_device.services.emg_filt_notifications()
-# myo_device.services.emg_raw_notifications()
-myo_device.services.imu_notifications()
-myo_device.services.classifier_notifications()
+# define which services we wish to subscribe to.
 # myo_device.services.battery_notifications()
+myo_device.services.classifier_notifications()
+myo_device.services.emg_filt_notifications() # myo_device.services.emg_raw_notifications()
+myo_device.services.imu_notifications()
+
 myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.DATA, myo.ClassifierMode.ON)
+
 myo_device.add_emg_event_handler(process_emg)
 myo_device.add_emg_event_handler(led_emg)
 # myo_device.add_imu_event_handler(process_imu)
