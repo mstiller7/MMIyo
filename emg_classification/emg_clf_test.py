@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pickle
 
 # Data loading
-with open("../emg_data/emg_data_20180210-145505.pkl",'r') as fp:
+with open("../emg_data/emg_data_20190621-111842.pkl",'r') as fp:
     emg_data = pickle.load(fp)
 
 n_classes = len(emg_data)
