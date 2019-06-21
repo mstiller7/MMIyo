@@ -81,8 +81,8 @@ print("Classification accuracy = %0.5f." %(classifier.score(X_test,y_test)))
 
 # Plotting
 colors = ['red','blue','green','cyan','magenta','yellow','lime','orange']
-for i in range(n_classes-1):
-    plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,1],c=colors[i],label=class_labels[i+1])
+for i in range(n_classes):
+    plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,1],c=colors[i],label=class_labels[i])
 plt.title(fp)
 plt.legend(scatterpoints=1,loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
