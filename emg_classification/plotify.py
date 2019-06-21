@@ -2,17 +2,19 @@
 #  This file is part of Open Myo.
 #  Open Myo is distributed under a GPL 3.0 license
 
-from emgesture import fextraction as fex
+import matplotlib.pyplot as plt
 import numpy as np
+import pickle
+import Tkinter, tkFileDialog
+from emgesture import fextraction as fex
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-import matplotlib.pyplot as plt
-import pickle
 
-# Data loading
-file = raw_input("Enter data filename: ")
-with open("../emg_data/" + file,'r') as fp:
-    emg_data = pickle.load(fp)
+# Data loading - now with GUI! For some reason, we're in Python2. Whatever...
+Tkinter.Tk().withdraw()
+fp = tkFileDialog.askopenfilename()
+with open(fp,'r') as file:
+    emg_data = pickle.load(file) # initialdir = "/home"
 
 n_classes = len(emg_data)
 n_iterations = [len(value) for value in emg_data.values()][0]
@@ -77,26 +79,10 @@ classifier.fit(X_train,y_train)
 predict = classifier.predict(X_test)
 print("Classification accuracy = %0.5f." %(classifier.score(X_test,y_test)))
 
-## Cross validation (optional; takes a lot of time)
-#from sklearn.cross_validation import StratifiedShuffleSplit
-#from sklearn.grid_search import GridSearchCV
-#from sklearn.svm import SVC
-#
-#C_range = np.logspace(-5,5,11)
-#gamma_range = np.logspace(-30,1,32)
-#param_grid = dict(gamma=gamma_range,C=C_range)
-#cv = StratifiedShuffleSplit(y, n_iter=20,test_size=0.2,random_state=42)
-#grid = GridSearchCV(SVC(),param_grid=param_grid,cv=cv)
-#grid.fit(X,y)
-#print("The best parameters are %s with a score of %0.2f" % (grid.best_params_,grid.best_score_))
-
-# TODO: implement dynamic iteration amount?
-plt.scatter(X[0:n_segments*n_iterations,0],X[0:n_segments*n_iterations,1],c='red',label=class_labels[0])
-plt.scatter(X[n_segments*n_iterations:2*n_segments*n_iterations,0],X[n_segments*n_iterations:2*n_segments*n_iterations,1],c='blue',label=class_labels[1])
-plt.scatter(X[2*n_segments*n_iterations:3*n_segments*n_iterations,0],X[2*n_segments*n_iterations:3*n_segments*n_iterations,1],c='green',label=class_labels[2])
-plt.scatter(X[3*n_segments*n_iterations:4*n_segments*n_iterations,0],X[3*n_segments*n_iterations:4*n_segments*n_iterations,1],c='cyan',label=class_labels[3])
-plt.scatter(X[4*n_segments*n_iterations:5*n_segments*n_iterations,0],X[4*n_segments*n_iterations:5*n_segments*n_iterations,1],c='magenta',label=class_labels[4])
-plt.scatter(X[5*n_segments*n_iterations:6*n_segments*n_iterations,0],X[5*n_segments*n_iterations:6*n_segments*n_iterations,1],c='lime',label=class_labels[5])
-# plt.scatter(X[6*n_segments*n_iterations:7*n_segments*n_iterations,0],X[6*n_segments*n_iterations:7*n_segments*n_iterations,1],c='orange',label=class_labels[6])
+# Plotting
+colors = ['red','blue','green','cyan','magenta','yellow','lime','orange']
+for i in range(n_classes-1):
+    plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,1],c=colors[i],label=class_labels[i+1])
+plt.title(fp)
 plt.legend(scatterpoints=1,loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
