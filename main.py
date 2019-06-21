@@ -20,7 +20,7 @@ def process_battery(batt):
     print("Battery level: %d" % batt)
 
 def led_emg(emg):
-    """Sets the LED to be red over a certain angle, otherwise it is set to purple."""
+    """Sets the LED to be red over a certain threshold, otherwise it is set to purple."""
     if(emg[0] > 80):
         myo_device.services.set_leds([255, 0, 0], [128, 128, 255])
     else:
