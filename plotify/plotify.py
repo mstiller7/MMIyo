@@ -13,6 +13,7 @@ from sklearn.svm import SVC
 # Data loading - now with GUI! For some reason, we're in Python2. Whatever...
 Tkinter.Tk().withdraw()
 fp = tkFileDialog.askopenfilename()
+print("Opening " + fp + "...")
 with open(fp,'r') as file:
     emg_data = pickle.load(file) # initialdir = "/home"
 
@@ -85,4 +86,9 @@ for i in range(n_classes):
     plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,1],c=colors[i],label=class_labels[i])
 plt.title(fp)
 plt.legend(scatterpoints=1,loc='center left', bbox_to_anchor=(1, 0.5))
-plt.show()
+# plt.show()
+
+import os
+output = '../graphs/' + os.path.split(fp)[1] + '.png'
+plt.savefig(output, bbox_inches='tight')
+print('Saved file to ' + output)
