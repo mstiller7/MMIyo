@@ -27,10 +27,10 @@ myo_device = myo.Device()
 myo_device.services.sleep_mode(1) # never sleep
 myo_device.services.set_leds([128, 128, 255], [128, 128, 255])  # purple logo and bar LEDs)
 myo_device.services.vibrate(1) # short vibration
-# myo_device.services.emg_filt_notifications()
-myo_device.services.emg_raw_notifications()
-myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
-#myo_device.services.set_mode(myo.EmgMode.OFF, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+myo_device.services.emg_filt_notifications()
+# myo_device.services.emg_raw_notifications()
+myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.DATA, myo.ClassifierMode.OFF)
+# myo_device.services.set_mode(myo.EmgMode.OFF, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
 time.sleep(1)
 myo_device.add_emg_event_handler(process_emg)
 
