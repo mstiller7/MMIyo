@@ -102,3 +102,4 @@ ENV/
 
 # Pickle files
 # *.pkl
+.vscode/settings.json
