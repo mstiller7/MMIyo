@@ -19,7 +19,8 @@ def process_emg(emg):
 
 def save_data(data):
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    filename = "emg_data_"+timestr
+    name = raw_input('Save file as: ')
+    filename = "emg_data_"+timestr+"-"+name
     with open("emg_data/"+filename+".pkl", 'wb') as fp:
         pickle.dump(data, fp)
 
@@ -27,17 +28,17 @@ myo_device = myo.Device()
 myo_device.services.sleep_mode(1) # never sleep
 myo_device.services.set_leds([128, 128, 255], [128, 128, 255])  # purple logo and bar LEDs)
 myo_device.services.vibrate(1) # short vibration
-myo_device.services.emg_filt_notifications()
-# myo_device.services.emg_raw_notifications()
-myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.DATA, myo.ClassifierMode.OFF)
-# myo_device.services.set_mode(myo.EmgMode.OFF, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+# myo_device.services.emg_filt_notifications()
+myo_device.services.emg_raw_notifications()
+myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+#myo_device.services.set_mode(myo.EmgMode.OFF, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
 time.sleep(1)
 myo_device.add_emg_event_handler(process_emg)
 
 gestures = dict()
-n_gestures = int(raw_input("How many gestures do you want to perform?: "))
-n_iterations = int(raw_input("How many times do you want to repeat each gesture?: "))
-runtime = int(raw_input("How many seconds do you want each gesture to last?: ")) 
+n_gestures = int(raw_input("How many gestures do you want to perform? (2<x<7): "))
+n_iterations = int(raw_input("How many times do you want to repeat each gesture? (x>1): "))
+runtime = int(raw_input("How many seconds do you want each gesture to last: "))
 
 for g in range(n_gestures):
     name = raw_input("Enter the name of gesture number {}: ".format(g+1))
@@ -60,7 +61,7 @@ for g in range(n_gestures):
 #        myo_device.services.set_mode(myo.EmgMode.OFF, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
         get_reading = False
         myo_device.services.vibrate(1) # short vibration
-        time.sleep(2)
 
 save_data(gestures)
-print(tick - start_time)   
+# print(tick - start_time)   
+print('Saved data.')

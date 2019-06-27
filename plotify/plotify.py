@@ -47,12 +47,19 @@ for n in range(n_signals):
 feature_list = [fex.mav, fex.rms, fex.var, fex.ssi, fex.zc, fex.wl, fex.ssc, fex.wamp]
 
 n_segments = len(segmented_emg[0][0])
+for i in range(0,n_signals,n_channels):
+    n_segments = min(n_segments,len(segmented_emg[i][0]))
+
+# n_segments = len(segmented_emg[0][0])
 n_features = len(feature_list)
 feature_matrix = np.zeros((n_classes*n_iterations*n_segments,n_features*n_channels))
 n = 0
 
 for i in range(0,n_signals,n_channels):
+    # n_segments = len(segmented_emg[i][0])
     for j in range(n_segments):
+        # print("n_segments: " + str(n_segments))
+        # print('n: ' + str(n) + ', i: ' + str(i) + ', j: ' + str(j))
         feature_matrix[n] = fex.features((segmented_emg[i][:,j],
                                           segmented_emg[i+1][:,j],
                                           segmented_emg[i+2][:,j],
@@ -68,6 +75,8 @@ y = fex.generate_target(n_iterations*n_segments,class_labels)
 
 # Dimensionality reduction and feature scaling
 [X,reductor,scaler] = fex.feature_scaling(feature_matrix, y)
+# print(X[0,0])
+# print(X[0,1])
 
 # Split dataset into training and testing datasets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
@@ -82,8 +91,11 @@ print("Classification accuracy = %0.5f." %(classifier.score(X_test,y_test)))
 
 # Plotting
 colors = ['red','blue','green','cyan','magenta','yellow','lime','orange']
-for i in range(n_classes):
-    plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,1],c=colors[i],label=class_labels[i])
+for i in range(0, n_classes):
+    if len(X[0]) < 2:
+        plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],c=colors[i],label=class_labels[i])
+    else:
+        plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,1],c=colors[i],label=class_labels[i])
 plt.title(fp)
 plt.legend(scatterpoints=1,loc='center left', bbox_to_anchor=(1, 0.5))
 # plt.show()
