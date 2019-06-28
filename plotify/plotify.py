@@ -25,19 +25,14 @@ emg = list()
 segmented_emg = list()
 class_labels = list()
 
-#for m in range(1,n_classes+1):
-#    for i in range(n_iterations):
-#        for c in range(1,n_channels+1):
-#            emg.append(emg_data['motion'+str(m)+'_ch'+str(c)][:,i]) #motion1_ch1_i1, motion1_ch2_i1, motion1_ch1_i2, motion1_ch2_i2
-
 for g in emg_data.keys():
     class_labels.append(g)
     for i in range(n_iterations):
         for c in range(n_channels):
-            emg.append(np.array(zip(*emg_data[g][i])[c][0:999]))
-
-#for z in range(n_signals):
-#    emg[z] = emg[z]*(5/2)/2**24
+            emg_set = np.array(zip(*emg_data[g][i])[c][0:999])
+            for j in xrange(0, len(emg_set), 8):
+                print(emg_set[j:j + 8])
+            emg.append(emg_set)
 
 # Segmentation
 for n in range(n_signals):
@@ -49,17 +44,12 @@ feature_list = [fex.mav, fex.rms, fex.var, fex.ssi, fex.zc, fex.wl, fex.ssc, fex
 n_segments = len(segmented_emg[0][0])
 for i in range(0,n_signals,n_channels):
     n_segments = min(n_segments,len(segmented_emg[i][0]))
-
-# n_segments = len(segmented_emg[0][0])
 n_features = len(feature_list)
 feature_matrix = np.zeros((n_classes*n_iterations*n_segments,n_features*n_channels))
-n = 0
 
+n = 0
 for i in range(0,n_signals,n_channels):
-    # n_segments = len(segmented_emg[i][0])
     for j in range(n_segments):
-        # print("n_segments: " + str(n_segments))
-        # print('n: ' + str(n) + ', i: ' + str(i) + ', j: ' + str(j))
         feature_matrix[n] = fex.features((segmented_emg[i][:,j],
                                           segmented_emg[i+1][:,j],
                                           segmented_emg[i+2][:,j],
@@ -75,8 +65,6 @@ y = fex.generate_target(n_iterations*n_segments,class_labels)
 
 # Dimensionality reduction and feature scaling
 [X,reductor,scaler] = fex.feature_scaling(feature_matrix, y)
-# print(X[0,0])
-# print(X[0,1])
 
 # Split dataset into training and testing datasets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
@@ -100,6 +88,7 @@ plt.title(fp)
 plt.legend(scatterpoints=1,loc='center left', bbox_to_anchor=(1, 0.5))
 # plt.show()
 
+# Output
 import os
 output = '../graphs/' + os.path.split(fp)[1] + '.png'
 plt.savefig(output, bbox_inches='tight')
