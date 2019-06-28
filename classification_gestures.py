@@ -6,12 +6,10 @@
 # Noosphere: Mathematical Playground
 # -----------------------------------------------
 
+# TODO
 # Store each octet separately, but in its parent class tag.
 # When a new dataset of octets is received, classify it by using the 'k-nearest-neighbor' algorithm.
-
 # We will be testing one octet against one other octet at a time.
-emg_knowns = [3,-8,4,1,-1,-2,2,-1]
-emg_unknowns = [-1,7,-6,-3,-1,2,6,-1]
 
 import math
 def euclidean(set_a, set_b):
@@ -23,8 +21,12 @@ def euclidean(set_a, set_b):
         distance += pow((set_a[x]-set_b[x]),2)
     return math.sqrt(distance)
 
-eu = euclidean(emg_knowns, emg_unknowns)
-print("The Eu. distance is: " + str(eu))
+# emg_knowns = [3,-8,4,1,-1,-2,2,-1]
+# emg_unknowns = [-1,7,-6,-3,-1,2,6,-1]
+# eu = euclidean(emg_knowns, emg_unknowns)
+# print("The Eu. distance is: " + str(eu))
+
+# -----------------------------------------------
 
 import sys
 sys.exit()
