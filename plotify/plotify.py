@@ -30,8 +30,8 @@ for g in emg_data.keys():
     for i in range(n_iterations):
         for c in range(n_channels):
             emg_set = np.array(zip(*emg_data[g][i])[c][0:999])
-            for j in xrange(0, len(emg_set), 8):
-                print(emg_set[j:j + 8])
+            # for j in xrange(0, len(emg_set), 8):
+            #     print(emg_set[j:j + 8])
             emg.append(emg_set)
 
 # Segmentation
