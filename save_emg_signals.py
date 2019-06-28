@@ -36,9 +36,9 @@ time.sleep(1)
 myo_device.add_emg_event_handler(process_emg)
 
 gestures = dict()
-n_gestures = int(raw_input("How many gestures do you want to perform? (2<x<7): "))
-n_iterations = int(raw_input("How many times do you want to repeat each gesture? (x>1): "))
-runtime = int(raw_input("How many seconds do you want each gesture to last: "))
+n_gestures = int(raw_input("How many gestures do you want to perform? (2<x<10): "))
+n_iterations = int(raw_input("How many times do you want to repeat each gesture? (x>1, default:3): "))
+runtime = int(raw_input("How many seconds do you want each gesture to last (default: 2): "))
 
 for g in range(n_gestures):
     name = raw_input("Enter the name of gesture number {}: ".format(g+1))

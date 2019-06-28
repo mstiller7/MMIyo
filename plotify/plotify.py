@@ -90,7 +90,7 @@ predict = classifier.predict(X_test)
 print("Classification accuracy = %0.5f." %(classifier.score(X_test,y_test)))
 
 # Plotting
-colors = ['red','blue','green','cyan','magenta','yellow','lime','orange']
+colors = ['red','blue','green','cyan','magenta','yellow','lime','orange','grey','chocolate']
 for i in range(0, n_classes):
     if len(X[0]) < 2:
         plt.scatter(X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],X[i*n_segments*n_iterations:(i+1)*n_segments*n_iterations,0],c=colors[i],label=class_labels[i])
