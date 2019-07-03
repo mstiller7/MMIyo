@@ -81,18 +81,48 @@ def getResponse(neighbors):
         else:
             votes[response] = 1
     votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
-    return votes_sorted[0][0]
+    print("Voting concluded. Results: ")
+    print(votes_sorted)
+    votes_sorted = list(votes_sorted[0])
+    try:
+        print("Highest votes: " + votes_sorted[0])
+    except:
+        pass
+    # return list(votes_sorted[0])[0]
 
 # DEBUG: Test voting.
 # neighbors = [[1,1,1,'a'],[2,2,2,'b'],[3,3,3,'b']]
 # print(getResponse(neighbors))
 # sys.exit()
 
-givens = [
-    [0,1,-2,-1,-2,0,0,-1,'thumb'],
-    [0,0,0,0,1,-1,1,0,'thumb'],
-    [0,-1,1,-5,1,0,0,1,'thumb']
-]
+# Step 5: Accuracy.
+import random
+def getAccuracy(givens, k):
+    '''
+    Tests 'k' random values in a set by comparing their given
+    classifications to their calculated predictions.
+    '''
+    correct = 0
+    for i in range(k):
+        # take a random value out
+        octet = givens.pop()
+        print("Iteration " + str(i) + ". Selected octet: ")
+        print(octet)
+        c = octet[8]
+
+        # from the main set, take a subset:
+        # everything that getResponse supplies based on the 
+        # given's classification
+        classification = getResponse(givens)
+        g = [octet for octet in givens if c == classification]
+
+        for j in range(len(g)):
+            if g[j][-1] is c[j]:
+                correct += 1
+        # stick it back in & sort?
+        givens.append(octet)
+        givens.sort()
+    return (correct/float(len(givens))) * 100.0
 
 # -----------------------------------------------
 # Realspace: EMG Classification
@@ -118,6 +148,7 @@ channels = 8
 
 emg_classes = list()
 emg_octet_groups = list()
+emg_octets = list()
 
 # We now load the data from the .pkl file into the lists.
 for k in emg_data.keys():
@@ -129,8 +160,12 @@ for k in emg_data.keys():
             for o in xrange(0, len(emg_octet_group), channels):
                 emg_octet = emg_octet_group[o:o+channels].tolist()
                 emg_octet.append(k)
+                emg_octets.append(emg_octet)
                 # DEBUG
                 # print(emg_octet)
+
+print("Testing accuracy...")
+print("Accuracy results: " + str(getAccuracy(emg_octets,10)))
 
 # TODO
 # When a new dataset of octets is received, classify it by using the 'k-nearest-neighbor' algorithm.
