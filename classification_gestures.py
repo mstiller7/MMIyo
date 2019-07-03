@@ -84,9 +84,15 @@ def getResponse(neighbors):
     return votes_sorted[0][0]
 
 # DEBUG: Test voting.
-neighbors = [[1,1,1,'a'],[2,2,2,'b'],[3,3,3,'b']]
-print(getResponse(neighbors))
-sys.exit()
+# neighbors = [[1,1,1,'a'],[2,2,2,'b'],[3,3,3,'b']]
+# print(getResponse(neighbors))
+# sys.exit()
+
+givens = [
+    [0,1,-2,-1,-2,0,0,-1,'thumb'],
+    [0,0,0,0,1,-1,1,0,'thumb'],
+    [0,-1,1,-5,1,0,0,1,'thumb']
+]
 
 # -----------------------------------------------
 # Realspace: EMG Classification
@@ -111,22 +117,21 @@ iterations = [len(value) for value in emg_data.values()][0]
 channels = 8
 
 emg_classes = list()
-emg_octets = list()
+emg_octet_groups = list()
 
 # We now load the data from the .pkl file into the lists.
 for k in emg_data.keys():
     emg_classes.append(k)
     for i in range(iterations):
         for c in range(channels):
-            emg_octet = np.array(zip(*emg_data[k][i])[c][0:999])
-            emg_octets.append(emg_octet)
-            # DEBUG: print out each octet.
-            # for o in xrange(0, len(emg_octet), channels):
-                # print("Gesture classification: " + k)
-                # print(emg_octet[o:o+channels])
-                # ^ This is how to get the octets in a nice format!
+            emg_octet_group = np.array(zip(*emg_data[k][i])[c][0:999])
+            emg_octet_groups.append(emg_octet_group)
+            for o in xrange(0, len(emg_octet_group), channels):
+                emg_octet = emg_octet_group[o:o+channels].tolist()
+                emg_octet.append(k)
+                # DEBUG
+                # print(emg_octet)
 
 # TODO
-# Store each octet separately, but in its parent class tag.
 # When a new dataset of octets is received, classify it by using the 'k-nearest-neighbor' algorithm.
 # We will be testing one octet against one other octet at a time.
