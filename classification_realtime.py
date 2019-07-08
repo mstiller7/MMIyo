@@ -110,10 +110,11 @@ def load_datasets():
     
     return emg_octets
 
-def process_emg(emg):
-    emg_current = emg
+# emg_current = 
 
-emg_current = []
+def process_emg(emg):
+    # emg_current = emg
+    print(emg)
 
 def process_battery(batt):
     print("Battery level: %d" % batt)
@@ -150,10 +151,10 @@ emg_octets = load_datasets()
 k = 10
 
 # main program loop. await service notifications.
-while True:
-    if myo_device.services.waitForNotifications(1):
-        neighbors = getNeighbors(emg_octets, emg_current, k)
-        response = getResponse(neighbors)
-        print("Your gesture is: " + response)
-        continue
-    print("Waiting...")
+# while True:
+#     if myo_device.services.waitForNotifications(1):
+#         neighbors = getNeighbors(emg_octets, emg_current, k)
+#         response = getResponse(neighbors)
+#         print("Your gesture is: " + response)
+#         continue
+#     print("Waiting...")
