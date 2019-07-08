@@ -24,7 +24,11 @@ def euclidean(set_a, set_b, length):
     '''
     distance = 0
     for x in range(length):
-        distance += pow((set_a[x]-set_b[x]),2)
+        try:
+            # print(str(set_a[x])  + ', ' + str(set_b[x]))
+            distance += pow((set_a[x]-set_b[x]),2)
+        except:
+            pass
     return math.sqrt(distance)
 
 # DEBUG: Euclidean distance tests.
@@ -45,6 +49,8 @@ def getNeighbors(givens, unknown, k):
     Returns the 'k' most similar neighbors to an
     unknown instance from a set of given values.
     '''
+    print("Now testing: ")
+    print(unknown)
     distances = []
     # Iterate through each of our known entries,
     # computing the Euclidean distance between the current set
@@ -58,6 +64,7 @@ def getNeighbors(givens, unknown, k):
     neighbors = []
     for i in range(k):
         neighbors.append(distances[i][0])
+        
     return neighbors
 
 # DEBUG: Test k-nearest-neighbors.
@@ -68,11 +75,13 @@ def getNeighbors(givens, unknown, k):
 # sys.exit()
 
 # Step 4: Response.
+import time
 def getResponse(neighbors):
     '''
     Allow each neighbor to vote for their respective attribute,
     and take the majority vote as the resulting prediction.
     '''
+    start = time.time()
     votes = {}
     for i in range(len(neighbors)):
         response = neighbors[i][-1]
@@ -83,12 +92,15 @@ def getResponse(neighbors):
     votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     print("Voting concluded. Results: ")
     print(votes_sorted)
-    votes_sorted = list(votes_sorted[0])
+    winner = list(votes_sorted[0])
+    end = time.time()
     try:
-        print("Highest votes: " + votes_sorted[0])
+        print("Highest votes: " + winner[0])
+        print("Time elapsed: " + str('%.3f'%(end-start)) + " seconds.")
+        print('')
     except:
         pass
-    # return list(votes_sorted[0])[0]
+    return list(winner[0])[0]
 
 # DEBUG: Test voting.
 # neighbors = [[1,1,1,'a'],[2,2,2,'b'],[3,3,3,'b']]
@@ -102,27 +114,8 @@ def getAccuracy(givens, k):
     Tests 'k' random values in a set by comparing their given
     classifications to their calculated predictions.
     '''
-    correct = 0
-    for i in range(k):
-        # take a random value out
-        octet = givens.pop()
-        print("Iteration " + str(i) + ". Selected octet: ")
-        print(octet)
-        c = octet[8]
 
-        # from the main set, take a subset:
-        # everything that getResponse supplies based on the 
-        # given's classification
-        classification = getResponse(givens)
-        g = [octet for octet in givens if c == classification]
-
-        for j in range(len(g)):
-            if g[j][-1] is c[j]:
-                correct += 1
-        # stick it back in & sort?
-        givens.append(octet)
-        givens.sort()
-    return (correct/float(len(givens))) * 100.0
+    # TODO
 
 # -----------------------------------------------
 # Realspace: EMG Classification
@@ -164,8 +157,26 @@ for k in emg_data.keys():
                 # DEBUG
                 # print(emg_octet)
 
-print("Testing accuracy...")
-print("Accuracy results: " + str(getAccuracy(emg_octets,10)))
+set_test = [ # 'ext-index'
+    [2, 0, -2, 0, 0, 0, 1, -4, 'ext-index'],
+    [0, 0, -1, -1, -1, -2, -1, 0, 'ext-index'],
+    [-1, 2, 0, -1, 0, -1, -1, 1, 'ext-index'],
+    [-1, 0, -2, -3, 2, 1, 0, 0, 'ext-index'],
+    [-2, -2, 0, -2, 1, 1, -2, -1, 'ext-index'],
+    [-3, -2, -1, -1, 2, -2, -1, 1, 'ext-index'],
+    [2, -3, -2, 0, 0, -1, -4, -1, 'ext-index'],
+    [-2, -1, 0, -1, -2, 2, 2, 0, 'ext-index'],
+    [-1, -1, 0, 0, -3, 2, -2, -2, 'ext-index']
+]
+
+k = 1000
+for i in range(len(set_test)):
+    neighbors = getNeighbors(emg_octets, set_test[i], k)
+    response = getResponse(neighbors)
+
+# print("Testing accuracy...")
+# print('')
+# print("Accuracy results: " + str(getAccuracy(emg_octets,10)))
 
 # TODO
 # When a new dataset of octets is received, classify it by using the 'k-nearest-neighbor' algorithm.
