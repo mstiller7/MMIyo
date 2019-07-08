@@ -25,7 +25,6 @@ def euclidean(set_a, set_b, length):
     distance = 0
     for x in range(length):
         try:
-            # print(str(set_a[x])  + ', ' + str(set_b[x]))
             distance += pow((set_a[x]-set_b[x]),2)
         except:
             pass
@@ -95,27 +94,16 @@ def getResponse(neighbors):
     winner = list(votes_sorted[0])
     end = time.time()
     try:
-        print("Highest votes: " + winner[0])
-        print("Time elapsed: " + str('%.3f'%(end-start)) + " seconds.")
-        print('')
+        # print("Highest votes: " + winner[0])
+        print("Duration: " + str('%.3f'%(end-start)) + " seconds.")
     except:
         pass
-    return list(winner[0])[0]
+    return winner[0]
 
 # DEBUG: Test voting.
 # neighbors = [[1,1,1,'a'],[2,2,2,'b'],[3,3,3,'b']]
 # print(getResponse(neighbors))
 # sys.exit()
-
-# Step 5: Accuracy.
-import random
-def getAccuracy(givens, k):
-    '''
-    Tests 'k' random values in a set by comparing their given
-    classifications to their calculated predictions.
-    '''
-
-    # TODO
 
 # -----------------------------------------------
 # Realspace: EMG Classification
@@ -125,7 +113,6 @@ def getAccuracy(givens, k):
 import pickle
 import tkFileDialog
 import Tkinter
-
 import numpy as np
 
 # Load the data via GUI.
@@ -157,7 +144,7 @@ for k in emg_data.keys():
                 # DEBUG
                 # print(emg_octet)
 
-set_test = [ # 'ext-index'
+set_test = [
     [2, 0, -2, 0, 0, 0, 1, -4, 'ext-index'],
     [0, 0, -1, -1, -1, -2, -1, 0, 'ext-index'],
     [-1, 2, 0, -1, 0, -1, -1, 1, 'ext-index'],
@@ -169,14 +156,31 @@ set_test = [ # 'ext-index'
     [-1, -1, 0, 0, -3, 2, -2, -2, 'ext-index']
 ]
 
-k = 1000
+# set_test = [
+#     [1, -6, 0, 4, 8, 0, 0, 0, 'ext-thumb-index-pinky'],
+#     [-2, -2, 1, 1, -2, 3, -2, -2, 'ext-thumb-index-pinky'],
+#     [0, 1, 0, -5, -2, -11, 2, -6, 'ext-thumb-index-pinky'],
+#     [6, -4, 2, -5, -9, 3, 3, -3, 'ext-thumb-index-pinky'],
+#     [-4, 1, -5, 7, -5, 7, -3, -5, 'ext-thumb-index-pinky'],
+#     [4, -6, -6, 0, -3, 2, -1, -8, 'ext-thumb-index-pinky'],
+#     [-4, -2, -3, 2, 0, -2, -1, -1, 'ext-thumb-index-pinky'],
+#     [-3, 12, -2, 2, 4, -3, -6, -2, 'ext-thumb-index-pinky'],
+#     [-4, 8, 2, -2, -3, 1, 1, -3, 'ext-thumb-index-pinky'],
+#     [3, -2, 1, 0, 6, 9, 0, -4, 'ext-thumb-index-pinky']
+# ]
+
+k = 10
+count = 0
 for i in range(len(set_test)):
     neighbors = getNeighbors(emg_octets, set_test[i], k)
+    classification = set_test[i][8]
     response = getResponse(neighbors)
+    if (classification == response):
+        count += 1
+    print('')
 
-# print("Testing accuracy...")
-# print('')
-# print("Accuracy results: " + str(getAccuracy(emg_octets,10)))
+print("Accuracy results: " + str((count/float(k))*100.0) + '%')
+print('')
 
 # TODO
 # When a new dataset of octets is received, classify it by using the 'k-nearest-neighbor' algorithm.
