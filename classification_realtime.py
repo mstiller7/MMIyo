@@ -110,21 +110,16 @@ def load_datasets():
     
     return emg_octets
 
-# emg_current = 
+emg_octets = load_datasets()
+k = 1000
 
 def process_emg(emg):
-    # emg_current = emg
-    print(emg)
+    neighbors = getNeighbors(emg_octets, emg[0], k)
+    response = getResponse(neighbors)
+    print("Your gesture is: " + response)
 
 def process_battery(batt):
     print("Battery level: %d" % batt)
-
-def led_emg(emg):
-    """Sets the LED to be red over a certain threshold, otherwise it is set to purple."""
-    if(emg[0] > 80):
-        myo_device.services.set_leds([255, 0, 0], [128, 128, 255])
-    else:
-        myo_device.services.set_leds([128, 128, 255], [128, 128, 255])
 
 # assign the device to a var. get the MAC address first!
 myo_mac_addr = myo.get_myo()
@@ -138,8 +133,6 @@ print("Battery level: %d" % myo_device.services.battery())
 
 # never sleep.
 myo_device.services.sleep_mode(1)
-# set logo & bar LED color to purple.
-myo_device.services.set_leds([128, 128, 255], [128, 128, 255]) 
 # short vibration.
 myo_device.services.vibrate(1)
 
@@ -147,14 +140,8 @@ myo_device.services.emg_raw_notifications()
 myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
 myo_device.add_emg_event_handler(process_emg)
 
-emg_octets = load_datasets()
-k = 10
-
 # main program loop. await service notifications.
-# while True:
-#     if myo_device.services.waitForNotifications(1):
-#         neighbors = getNeighbors(emg_octets, emg_current, k)
-#         response = getResponse(neighbors)
-#         print("Your gesture is: " + response)
-#         continue
-#     print("Waiting...")
+while True:
+    if myo_device.services.waitForNotifications(1):
+        continue
+    print("Waiting...")
