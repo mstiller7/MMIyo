@@ -42,15 +42,23 @@ def getNeighbors(givens, unknown, k):
     # computing the Euclidean distance between the current set
     # and our unknown instance.
     for i in range(len(givens)):
-        eu = euclidean(givens[i], unknown, len(unknown)-1)
-        # Nested tuple:
-        distances.append((givens[i], eu))
+        if len(givens[i]) >= 8 or len(unknown) >= 8:
+            eu = euclidean(givens[i], unknown, len(unknown)-1)
+            # Nested tuple of a given octet and its distance to the unknown:
+            distances.append((givens[i], eu))
+        else:
+            break
     distances.sort(key=operator.itemgetter(1))
+    
+    # print(distances)
 
     neighbors = []
     for i in range(k):
-        neighbors.append(distances[i][0])
-        
+        try:
+            neighbors.append((distances[i][0], distances[i][1]))
+        except:
+            pass
+
     return neighbors
 
 def getResponse(neighbors):
@@ -60,12 +68,16 @@ def getResponse(neighbors):
     '''
     start = time.time()
     votes = {}
+    # print(neighbors)
     for i in range(len(neighbors)):
-        response = neighbors[i][-1]
+        response = neighbors[i][0][-1]
         if response in votes:
-            votes[response] += 1
+            votes[response] += 1/(neighbors[i][1]) # the "weight" of a vote?
         else:
-            votes[response] = 1
+            try:
+                votes[response] = 1/(neighbors[i][1])
+            except:
+                pass
 
     votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     if (PRINT_DEBUG):
@@ -79,7 +91,7 @@ def getResponse(neighbors):
         pass
     return winner[0]
 
-def load_datasets():
+def loadData():
     '''
     Allow the user to select a file of training data.
     '''
@@ -113,17 +125,36 @@ def load_datasets():
     print('Loaded datasets.')
     return emg_octets
 
-def process_emg(emg):
+from collections import Counter
+
+def getMostCommon(lst):
+    data = Counter(lst)
+    return data.most_common(1)[0][0]
+
+def processEMG(emg):
+    global responses
     neighbors = getNeighbors(emg_octets, emg[0], k)
     response = getResponse(neighbors)
-    print("Gesture: " + response)
 
-def process_battery(batt):
+    responses.append(response)
+    if len(responses) >= 20:
+        print("Gesture: " + str(response))
+        print(responses)
+        winner = getMostCommon(responses)
+        count = 0
+        for i in range(len(responses)):
+            if responses[i] == winner:
+                count += 1
+        print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+        responses = list()
+
+def processBattery(batt):
     print("Battery level: %d" % batt)
 
 # load our known ("sample") data.
-emg_octets = load_datasets()
-k = 10
+emg_octets = loadData()
+k = 100
+responses = list()
 
 def main():
     print('Connecting to Myo armband...')
@@ -144,7 +175,7 @@ def main():
 
     myo_device.services.emg_raw_notifications()
     myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
-    myo_device.add_emg_event_handler(process_emg)
+    myo_device.add_emg_event_handler(processEMG)
 
     # main program loop. await service notifications.
     while True:
