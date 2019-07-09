@@ -9,6 +9,7 @@ import sys
 import time
 import tkFileDialog
 import Tkinter
+from collections import Counter
 
 import numpy as np
 
@@ -125,11 +126,8 @@ def loadData():
     print('Loaded datasets.')
     return emg_octets
 
-from collections import Counter
-
-def getMostCommon(lst):
-    data = Counter(lst)
-    return data.most_common(1)[0][0]
+def processBattery(batt):
+    print("Battery level: %d" % batt)
 
 def processEMG(emg):
     global responses
@@ -139,17 +137,16 @@ def processEMG(emg):
     responses.append(response)
     if len(responses) >= 20:
         print("Gesture: " + str(response))
-        print(responses)
-        winner = getMostCommon(responses)
+        # print(responses)
+
+        winner = Counter(responses).most_common(1)[0][0]
         count = 0
         for i in range(len(responses)):
             if responses[i] == winner:
                 count += 1
         print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+        print('')
         responses = list()
-
-def processBattery(batt):
-    print("Battery level: %d" % batt)
 
 # load our known ("sample") data.
 emg_octets = loadData()
