@@ -34,8 +34,9 @@ def getNeighbors(givens, unknown, k):
     Returns the 'k' most similar neighbors to an
     unknown instance from a set of given values.
     '''
-    print("Now testing: ")
-    print(unknown)
+    if (PRINT_DEBUG):
+        print("Now testing: ")
+        print(unknown)
     distances = []
     # Iterate through each of our known entries,
     # computing the Euclidean distance between the current set
@@ -67,12 +68,13 @@ def getResponse(neighbors):
             votes[response] = 1
 
     votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
-    print("Voting concluded. Results: ")
-    print(votes_sorted)
+    if (PRINT_DEBUG):
+        print("Voting concluded. Results: ")
+        print(votes_sorted)
     winner = list(votes_sorted[0])
     end = time.time()
     try:
-        print("Duration: " + str('%.3f'%(end-start)) + " seconds.")
+        if (PRINT_DEBUG): print("Duration: " + str('%.3f'%(end-start)) + " seconds.")
     except:
         pass
     return winner[0]
@@ -108,40 +110,48 @@ def load_datasets():
                     emg_octet.append(k)
                     emg_octets.append(emg_octet)
     
+    print('Loaded datasets.')
     return emg_octets
-
-emg_octets = load_datasets()
-k = 1000
 
 def process_emg(emg):
     neighbors = getNeighbors(emg_octets, emg[0], k)
     response = getResponse(neighbors)
-    print("Your gesture is: " + response)
+    print("Gesture: " + response)
 
 def process_battery(batt):
     print("Battery level: %d" % batt)
 
-# assign the device to a var. get the MAC address first!
-myo_mac_addr = myo.get_myo()
-myo_device = myo.Device()
+# load our known ("sample") data.
+emg_octets = load_datasets()
+k = 10
 
-# print developer information to console.
-print("MAC address: %s" % myo_mac_addr)
-fw = myo_device.services.firmware()
-print("Firmware version: %d.%d.%d.%d" % (fw[0], fw[1], fw[2], fw[3]))
-print("Battery level: %d" % myo_device.services.battery())
+def main():
+    print('Connecting to Myo armband...')
+    # assign the device to a var. get the MAC address first!
+    myo_mac_addr = myo.get_myo()
+    myo_device = myo.Device()
 
-# never sleep.
-myo_device.services.sleep_mode(1)
-# short vibration.
-myo_device.services.vibrate(1)
+    # print developer information to console.
+    print("MAC: %s" % myo_mac_addr)
+    fw = myo_device.services.firmware()
+    print("Firmware: %d.%d.%d.%d" % (fw[0], fw[1], fw[2], fw[3]))
+    print("Battery: %d" % myo_device.services.battery())
 
-myo_device.services.emg_raw_notifications()
-myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
-myo_device.add_emg_event_handler(process_emg)
+    # never sleep.
+    myo_device.services.sleep_mode(1)
+    # short vibration.
+    myo_device.services.vibrate(1)
 
-# main program loop. await service notifications.
-while True:
-    if myo_device.services.waitForNotifications(1):
-        continue
-    print("Waiting...")
+    myo_device.services.emg_raw_notifications()
+    myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+    myo_device.add_emg_event_handler(process_emg)
+
+    # main program loop. await service notifications.
+    while True:
+        if myo_device.services.waitForNotifications(1):
+            continue
+        print("Waiting...")
+
+PRINT_DEBUG = False
+
+main()
