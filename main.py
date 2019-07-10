@@ -5,7 +5,7 @@
 import open_myo as myo
 
 def process_emg(emg):
-    print(emg)
+    print(str(emg[0]) + ',')
 
 def process_imu(quat, acc, gyro):
     print(quat)
