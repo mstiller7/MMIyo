@@ -10,7 +10,7 @@ class NeuralNetwork():
         # We model a single neuron, with 3 input connections and 1 output connection.
         # We assign random weights to a 3 x 1 matrix, with values in the range -1 to 1
         # and mean 0.
-        self.synaptic_weights = 2 * random.random((8, 1)) - 1
+        self.synaptic_weights = 2 * random.random((3, 1)) - 1
 
     # The Sigmoid function, which describes an S shaped curve.
     # We pass the weighted sum of the inputs through this function to
@@ -38,8 +38,7 @@ class NeuralNetwork():
             # Multiply the error by the input and again by the gradient of the Sigmoid curve.
             # This means less confident weights are adjusted more.
             # This means inputs, which are zero, do not cause changes to the weights.
-            adjustment = dot(training_set_inputs.T, error *
-                             self.__sigmoid_derivative(output))
+            adjustment = dot(training_set_inputs.T, error * self.__sigmoid_derivative(output))
 
             # Adjust the weights.
             self.synaptic_weights += adjustment
@@ -52,7 +51,7 @@ class NeuralNetwork():
 
 if __name__ == "__main__":
 
-    # Intialise a single neuron neural network.
+    #Intialise a single neuron neural network.
     neural_network = NeuralNetwork()
 
     print "Random starting synaptic weights: "
@@ -60,27 +59,8 @@ if __name__ == "__main__":
 
     # The training set. We have 4 examples, each consisting of 3 input values
     # and 1 output value.
-    training_set_inputs = array([
-        (131, 153, 66, 106, 92, 355, 214, 102),  # clench
-        (155, 177, 82, 115, 92, 346, 189, 104),
-        (154, 190, 83, 117, 91, 355, 163, 102),
-        (146, 183, 79, 109, 90, 365, 157, 97),
-        (150, 181, 77, 102, 83, 307, 163, 89),
-        (149, 191, 88, 100, 79, 272, 203, 86),
-        (121, 178, 88, 118, 75, 277, 205, 75),
-        (112, 158, 83, 117, 71, 287, 212, 71),
-        (494, 257, 63, 53, 135, 340, 119, 55),  # point
-        (504, 286, 60, 48, 129, 398, 127, 54),
-        (434, 279, 61, 49, 135, 361, 126, 42),
-        (419, 192, 58, 50, 168, 372, 128, 42),
-        (385, 199, 60, 54, 174, 415, 132, 48),
-        (371, 229, 58, 61, 177, 492, 140, 53),
-        (352, 186, 63, 65, 181, 464, 156, 55),
-        (384, 192, 63, 65, 176, 467, 177, 61)
-    ])
-    training_set_outputs = array([
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
-    ]).T
+    training_set_inputs = array([[0, 0, 1], [1, 1, 1], [1, 0, 1], [0, 1, 1]])
+    training_set_outputs = array([[0, 1, 1, 0]]).T
 
     # Train the neural network using a training set.
     # Do it 10,000 times and make small adjustments each time.
@@ -90,9 +70,5 @@ if __name__ == "__main__":
     print neural_network.synaptic_weights
 
     # Test the neural network with a new situation.
-    print "Considering new situation 'clench' -> ?: "
-    print neural_network.think(
-        array([[94, 189, 75, 107, 88, 282, 224, 95]]))
-    print "Considering new situation 'point' -> ?"
-    print neural_network.think(
-        array([[423, 157, 85, 63, 160, 484, 226, 67]]))
+    print "Considering new situation [1, 0, 0] -> ?: "
+    print neural_network.think(array([1, 0, 0]))

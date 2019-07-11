@@ -131,7 +131,7 @@ def processBattery(batt):
 
 def processEMG(emg):
     global responses
-    neighbors = getNeighbors(emg_octets, emg[0], k)
+    neighbors = getNeighbors(emg_octets, emg, k)
     response = getResponse(neighbors)
 
     responses.append(response)
@@ -170,8 +170,8 @@ def main():
     # short vibration.
     myo_device.services.vibrate(1)
 
-    myo_device.services.emg_raw_notifications()
-    myo_device.services.set_mode(myo.EmgMode.RAW, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+    myo_device.services.emg_filt_notifications()
+    myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
     myo_device.add_emg_event_handler(processEMG)
 
     # main program loop. await service notifications.

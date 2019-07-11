@@ -3,6 +3,12 @@
 # © 2019 Matthew Stiller @ UTA CSE REU
 # Adapted from: https://machinelearningmastery.com/tutorial-to-implement-k-nearest-neighbors-in-python-from-scratch/
 
+import numpy as np
+import Tkinter
+import tkFileDialog
+import pickle
+import time
+import operator
 import sys
 
 # -----------------------------------------------
@@ -10,12 +16,14 @@ import sys
 # -----------------------------------------------
 
 # For our purposes throughout, we will assume to be given data sets
-# of an 9-length tuple, with the 9th entry being a 
+# of an 9-length tuple, with the 9th entry being a
 # gesture classification string.
 # Example: [1,2,3,4,5,6,7,8,'index-extended']
 
 # Step 2: Similarity.
 import math
+
+
 def euclidean(set_a, set_b, length):
     '''
     Returns the Euclidian distance between sets, by calculating
@@ -25,7 +33,7 @@ def euclidean(set_a, set_b, length):
     distance = 0
     for x in range(length):
         try:
-            distance += pow((set_a[x]-set_b[x]),2)
+            distance += pow((set_a[x]-set_b[x]), 2)
         except:
             pass
     return math.sqrt(distance)
@@ -41,8 +49,10 @@ def euclidean(set_a, set_b, length):
 # sys.exit()
 # From the above tests, we can see that the larger variance in numbers, the greater Euclidean distance.
 
+
 # Step 3: Neighbors.
-import operator
+
+
 def getNeighbors(givens, unknown, k):
     '''
     Returns the 'k' most similar neighbors to an
@@ -63,7 +73,7 @@ def getNeighbors(givens, unknown, k):
     neighbors = []
     for i in range(k):
         neighbors.append(distances[i][0])
-        
+
     return neighbors
 
 # DEBUG: Test k-nearest-neighbors.
@@ -73,8 +83,10 @@ def getNeighbors(givens, unknown, k):
 # print(getNeighbors(set_a,set_b,1))
 # sys.exit()
 
+
 # Step 4: Response.
-import time
+
+
 def getResponse(neighbors):
     '''
     Allow each neighbor to vote for their respective attribute,
@@ -88,14 +100,15 @@ def getResponse(neighbors):
             votes[response] += 1
         else:
             votes[response] = 1
-    votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
+    votes_sorted = sorted(
+        votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     print("Voting concluded. Results: ")
     print(votes_sorted)
     winner = list(votes_sorted[0])
     end = time.time()
     try:
         # print("Highest votes: " + winner[0])
-        print("Duration: " + str('%.3f'%(end-start)) + " seconds.")
+        print("Duration: " + str('%.9f' % (end-start)) + " seconds.")
     except:
         pass
     return winner[0]
@@ -109,18 +122,15 @@ def getResponse(neighbors):
 # Realspace: EMG Classification
 # -----------------------------------------------
 
+
 # Step 1: Data loading.
-import pickle
-import tkFileDialog
-import Tkinter
-import numpy as np
 
 # Load the data via GUI.
 Tkinter.Tk().withdraw()
 fp = tkFileDialog.askopenfilename()
 print("Opening " + fp + "...")
-with open(fp,'r') as file:
-    emg_data = pickle.load(file) # initialdir = "/home"
+with open(fp, 'r') as file:
+    emg_data = pickle.load(file)  # initialdir = "/home"
 
 iterations = [len(value) for value in emg_data.values()][0]
 # The Myo armband sends data from its 8 sensors.
@@ -145,15 +155,16 @@ for k in emg_data.keys():
                 # print(emg_octet)
 
 set_test = [
-    [2, 0, -2, 0, 0, 0, 1, -4, 'ext-index'],
-    [0, 0, -1, -1, -1, -2, -1, 0, 'ext-index'],
-    [-1, 2, 0, -1, 0, -1, -1, 1, 'ext-index'],
-    [-1, 0, -2, -3, 2, 1, 0, 0, 'ext-index'],
-    [-2, -2, 0, -2, 1, 1, -2, -1, 'ext-index'],
-    [-3, -2, -1, -1, 2, -2, -1, 1, 'ext-index'],
-    [2, -3, -2, 0, 0, -1, -4, -1, 'ext-index'],
-    [-2, -1, 0, -1, -2, 2, 2, 0, 'ext-index'],
-    [-1, -1, 0, 0, -3, 2, -2, -2, 'ext-index']
+    [130, 162, 75, 101, 87, 306, 195, 74, 'clench'],
+    [108, 133, 70, 109, 83, 294, 174, 74, 'clench'],
+    [118, 134, 68, 122, 95, 301, 176, 75, 'clench'],
+    [117, 143, 73, 104, 91, 320, 169, 85, 'clench'],
+    [120, 141, 67, 107, 86, 272, 182, 102, 'clench'],
+    [121, 131, 62, 116, 90, 283, 186, 106, 'clench'],
+    [129, 123, 59, 116, 95, 316, 197, 107, 'clench'],
+    [124, 117, 62, 106, 93, 288, 197, 104, 'clench'],
+    [126, 117, 54, 112, 85, 271, 186, 95, 'clench'],
+    [135, 115, 62, 110, 93, 294, 176, 71, 'clench']
 ]
 
 # set_test = [
