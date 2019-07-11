@@ -135,7 +135,7 @@ def processEMG(emg):
     response = getResponse(neighbors)
 
     responses.append(response)
-    if len(responses) >= 20:
+    if len(responses) >= 100:
         print("Gesture: " + str(response))
         # print(responses)
 
@@ -150,7 +150,7 @@ def processEMG(emg):
 
 # load our known ("sample") data.
 emg_octets = loadData()
-k = 100
+k = 1000
 responses = list()
 
 def main():
