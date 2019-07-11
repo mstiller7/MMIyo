@@ -1,4 +1,4 @@
-# Python 2.7.16 64-bit
+# Python 2.7.15+ 64-bit
 # Encoding: utf-8
 # © 2019 Matthew Stiller @ UTA CSE REU
 
