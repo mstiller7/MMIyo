@@ -9,7 +9,11 @@ with open(fp, 'r') as file:
     emg_data = pickle.load(file)  # initialdir = "/home"
 
 for k in emg_data:
+    count = 0
     gesture = emg_data[k]
     for g in gesture:
         for emg in g:
-            print k, emg
+            if count >= 30:
+                break
+            print k, ': ', list(emg), ','
+            count += 1
