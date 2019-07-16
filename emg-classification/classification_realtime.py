@@ -12,8 +12,10 @@ import Tkinter
 from collections import Counter
 
 import numpy as np
+from fastdtw import fastdtw
+from scipy.spatial.distance import euclidean as eu
 
-import open_myo as myo
+from open_myo import open_myo as myo
 
 
 def euclidean(set_a, set_b, length):
@@ -22,13 +24,17 @@ def euclidean(set_a, set_b, length):
     the mathematical distance between each values up to the
     given 'length' of values.
     '''
-    distance = 0
-    for x in range(length):
-        try:
-            distance += pow((set_a[x]-set_b[x]),2)
-        except:
-            pass
-    return math.sqrt(distance)
+    a = list(set_a)[:-1]
+    b = list(set_b)[:-1]
+    distance, path = fastdtw(a, b, dist=eu)
+    return distance
+    # distance = 0
+    # for x in range(length):
+    #     try:
+    #         distance += pow((set_a[x]-set_b[x]),2)
+    #     except:
+    #         pass
+    # return math.sqrt(distance)
 
 def getNeighbors(givens, unknown, k):
     '''
