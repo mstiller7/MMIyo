@@ -2,7 +2,7 @@
 #  This file is part of Open Myo.
 #  Open Myo is distributed under a GPL 3.0 license
 
-from open_myo import open_myo as myo
+import open_myo as myo
 import numpy as np
 import timeit
 import time

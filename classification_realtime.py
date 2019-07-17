@@ -10,12 +10,13 @@ import time
 import tkFileDialog
 import Tkinter
 from collections import Counter
+import itertools
 
 import numpy as np
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean as eu
 
-from open_myo import open_myo as myo
+import open_myo as myo
 
 
 def euclidean(set_a, set_b, length):
@@ -24,17 +25,13 @@ def euclidean(set_a, set_b, length):
     the mathematical distance between each values up to the
     given 'length' of values.
     '''
-    a = list(set_a)[:-1]
-    b = list(set_b)[:-1]
-    distance, path = fastdtw(a, b, dist=eu)
-    return distance
-    # distance = 0
-    # for x in range(length):
-    #     try:
-    #         distance += pow((set_a[x]-set_b[x]),2)
-    #     except:
-    #         pass
-    # return math.sqrt(distance)
+    distance = 0
+    for x in range(length):
+        try:
+            distance += pow((set_a[x]-set_b[x]),2)
+        except:
+            pass
+    return math.sqrt(distance)
 
 def getNeighbors(givens, unknown, k):
     '''
@@ -51,6 +48,7 @@ def getNeighbors(givens, unknown, k):
     for i in range(len(givens)):
         if len(givens[i]) >= 8 or len(unknown) >= 8:
             eu = euclidean(givens[i], unknown, len(unknown)-1)
+            # print eu
             # Nested tuple of a given octet and its distance to the unknown:
             distances.append((givens[i], eu))
         else:
@@ -79,12 +77,15 @@ def getResponse(neighbors):
     for i in range(len(neighbors)):
         response = neighbors[i][0][-1]
         if response in votes:
-            votes[response] += 1/(neighbors[i][1]) # the "weight" of a vote?
+            try:
+                votes[response] += 1/(neighbors[i][1]) # the "weight" of a vote?
+            except:
+                votes[response] += 0
         else:
             try:
                 votes[response] = 1/(neighbors[i][1])
             except:
-                pass
+                votes[response] = 0
 
     votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     if (PRINT_DEBUG):
@@ -140,12 +141,13 @@ responses = list()
 def processEMG(emg):
     global responses
     neighbors = getNeighbors(emg_octets, emg, k)
+    # print neighbors
     response = getResponse(neighbors)
 
     responses.append(response)
-    if len(responses) >= 100:
+    if len(responses) >= 10:
         print("Gesture: " + str(response))
-        # print(responses)
+        print(responses)
 
         winner = Counter(responses).most_common(1)[0][0]
         count = 0
@@ -158,7 +160,7 @@ def processEMG(emg):
 
 # load our known ("sample") data.
 emg_octets = loadData()
-k = 1000
+k = 100
 
 def main():
     print('Connecting to Myo armband...')
