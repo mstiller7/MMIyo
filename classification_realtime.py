@@ -10,11 +10,8 @@ import time
 import tkFileDialog
 import Tkinter
 from collections import Counter
-import itertools
 
 import numpy as np
-from fastdtw import fastdtw
-from scipy.spatial.distance import euclidean as eu
 
 import open_myo as myo
 
@@ -28,33 +25,34 @@ def euclidean(set_a, set_b, length):
     distance = 0
     for x in range(length):
         try:
-            distance += pow((set_a[x]-set_b[x]),2)
+            distance += pow((set_a[x]-set_b[x]), 2)
         except:
             pass
     return math.sqrt(distance)
+
 
 def getNeighbors(givens, unknown, k):
     '''
     Returns the 'k' most similar neighbors to an
     unknown instance from a set of given values.
     '''
-    if (PRINT_DEBUG):
-        print("Now testing: ")
-        print(unknown)
+    # if (PRINT_DEBUG):
+    print("Now testing: ")
+    print(unknown)
     distances = []
     # Iterate through each of our known entries,
     # computing the Euclidean distance between the current set
     # and our unknown instance.
     for i in range(len(givens)):
-        if len(givens[i]) >= 8 or len(unknown) >= 8:
+        if len(givens[i]) < 8 or len(unknown) < 8:
+            break
+        else:
             eu = euclidean(givens[i], unknown, len(unknown)-1)
             # print eu
             # Nested tuple of a given octet and its distance to the unknown:
             distances.append((givens[i], eu))
-        else:
-            break
     distances.sort(key=operator.itemgetter(1))
-    
+
     # print(distances)
 
     neighbors = []
@@ -65,6 +63,7 @@ def getNeighbors(givens, unknown, k):
             pass
 
     return neighbors
+
 
 def getResponse(neighbors):
     '''
@@ -78,7 +77,8 @@ def getResponse(neighbors):
         response = neighbors[i][0][-1]
         if response in votes:
             try:
-                votes[response] += 1/(neighbors[i][1]) # the "weight" of a vote?
+                # the "weight" of a vote?
+                votes[response] += 1/(neighbors[i][1])
             except:
                 votes[response] += 0
         else:
@@ -87,17 +87,20 @@ def getResponse(neighbors):
             except:
                 votes[response] = 0
 
-    votes_sorted = sorted(votes.iteritems(), key=operator.itemgetter(1), reverse=True)
+    votes_sorted = sorted(
+        votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     if (PRINT_DEBUG):
         print("Voting concluded. Results: ")
         print(votes_sorted)
     winner = list(votes_sorted[0])
     end = time.time()
     try:
-        if (PRINT_DEBUG): print("Duration: " + str('%.3f'%(end-start)) + " seconds.")
+        if (PRINT_DEBUG):
+            print("Duration: " + str('%.3f' % (end-start)) + " seconds.")
     except:
         pass
     return winner[0]
+
 
 def loadData():
     '''
@@ -107,8 +110,8 @@ def loadData():
     Tkinter.Tk().withdraw()
     fp = tkFileDialog.askopenfilename()
     print("Opening " + fp + "...")
-    with open(fp,'r') as file:
-        emg_data = pickle.load(file) # initialdir = "/home"
+    with open(fp, 'r') as file:
+        emg_data = pickle.load(file)  # initialdir = "/home"
 
     iterations = [len(value) for value in emg_data.values()][0]
     # The Myo armband sends data from its 8 sensors.
@@ -129,38 +132,49 @@ def loadData():
                     emg_octet = emg_octet_group[o:o+channels].tolist()
                     emg_octet.append(k)
                     emg_octets.append(emg_octet)
-    
+
     print('Loaded datasets.')
     return emg_octets
+
 
 def processBattery(batt):
     print("Battery level: %d" % batt)
 
+
 responses = list()
+emgs = list()
+
 
 def processEMG(emg):
     global responses
-    neighbors = getNeighbors(emg_octets, emg, k)
-    # print neighbors
-    response = getResponse(neighbors)
+    global emgs
 
-    responses.append(response)
-    if len(responses) >= 10:
+    emgs.append(emg)
+    if len(emgs) >= 50:
+        avgs = np.average(np.array(emgs), axis=0)
+        # print avgs
+        neighbors = getNeighbors(emg_octets, avgs, k)
+        print neighbors
+        response = getResponse(neighbors)
+        # responses.append(response)
+    # if len(responses) >= 10:
         print("Gesture: " + str(response))
-        print(responses)
+        # print(responses)
 
-        winner = Counter(responses).most_common(1)[0][0]
-        count = 0
-        for i in range(len(responses)):
-            if responses[i] == winner:
-                count += 1
-        print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-        print('')
-        responses = list()
+        # winner = Counter(responses).most_common(1)[0][0]
+        # count = 0
+        # for i in range(len(responses)):
+        #     if responses[i] == winner:
+        #         count += 1
+        # print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+        # print('')
+        # responses = list()
+
 
 # load our known ("sample") data.
 emg_octets = loadData()
-k = 100
+k = 5
+
 
 def main():
     print('Connecting to Myo armband...')
@@ -180,7 +194,8 @@ def main():
     myo_device.services.vibrate(1)
 
     myo_device.services.emg_filt_notifications()
-    myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+    myo_device.services.set_mode(
+        myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
     myo_device.add_emg_event_handler(processEMG)
 
     # main program loop. await service notifications.
@@ -188,6 +203,7 @@ def main():
         if myo_device.services.waitForNotifications(1):
             continue
         print("Waiting...")
+
 
 PRINT_DEBUG = False
 
