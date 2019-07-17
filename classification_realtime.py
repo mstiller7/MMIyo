@@ -16,52 +16,42 @@ import numpy as np
 import open_myo as myo
 
 
-def euclidean(set_a, set_b, length):
+def euclidean(set_a, set_b):
     '''
-    Returns the Euclidian distance between sets, by calculating
-    the mathematical distance between each values up to the
-    given 'length' of values.
+    Returns the Euclidian distance between EMG sets, by calculating
+    the mathematical distance between each value.
+    We assume both the sets' lengths are 8,
+    ignoring the possible 9th classification value.
     '''
     distance = 0
-    for x in range(length):
-        try:
-            distance += pow((set_a[x]-set_b[x]), 2)
-        except:
-            pass
+    for i in range(8):
+        distance += pow((set_a[i]-set_b[i]), 2)
     return math.sqrt(distance)
 
 
-def getNeighbors(givens, unknown, k):
+def getNeighbors(k, unknown, givens):
     '''
     Returns the 'k' most similar neighbors to an
     unknown instance from a set of given values.
     '''
-    # if (PRINT_DEBUG):
-    print("Now testing: ")
-    print(unknown)
+    if PRINT_DEBUG:
+        print "Now testing:", unknown
+        print "Size of givens:", len(givens)
     distances = []
     # Iterate through each of our known entries,
     # computing the Euclidean distance between the current set
     # and our unknown instance.
-    for i in range(len(givens)):
-        if len(givens[i]) < 8 or len(unknown) < 8:
-            break
-        else:
-            eu = euclidean(givens[i], unknown, len(unknown)-1)
-            # print eu
-            # Nested tuple of a given octet and its distance to the unknown:
-            distances.append((givens[i], eu))
+    for g in givens:
+        eu = euclidean(unknown, g)
+        # nested tuple of a given octet and its distance to the unknown
+        distances.append((g, eu))
     distances.sort(key=operator.itemgetter(1))
-
-    # print(distances)
 
     neighbors = []
     for i in range(k):
-        try:
-            neighbors.append((distances[i][0], distances[i][1]))
-        except:
-            pass
-
+        neighbors.append((distances[i][0], distances[i][1]))
+    if PRINT_DEBUG:
+        print neighbors
     return neighbors
 
 
@@ -72,33 +62,24 @@ def getResponse(neighbors):
     '''
     start = time.time()
     votes = {}
-    # print(neighbors)
-    for i in range(len(neighbors)):
-        response = neighbors[i][0][-1]
-        if response in votes:
-            try:
-                # the "weight" of a vote?
-                votes[response] += 1/(neighbors[i][1])
-            except:
-                votes[response] += 0
+    for n in neighbors:
+        r = n[0][-1]  # get the 'response' index
+        if r in votes:
+            votes[r] += 1/(n[1])  # add the response's distance-weighted vote
         else:
-            try:
-                votes[response] = 1/(neighbors[i][1])
-            except:
-                votes[response] = 0
+            votes[r] = 0
+        print votes
 
     votes_sorted = sorted(
         votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     if (PRINT_DEBUG):
-        print("Voting concluded. Results: ")
-        print(votes_sorted)
+        print "Voting concluded. Results:", votes_sorted
     winner = list(votes_sorted[0])
     end = time.time()
-    try:
-        if (PRINT_DEBUG):
-            print("Duration: " + str('%.3f' % (end-start)) + " seconds.")
-    except:
-        pass
+
+    if (PRINT_DEBUG):
+        print("Duration: " + str('%.3f' % (end-start)) + " seconds.")
+
     return winner[0]
 
 
@@ -134,6 +115,7 @@ def loadData():
                     emg_octets.append(emg_octet)
 
     print('Loaded datasets.')
+    emg_octets.sort()
     return emg_octets
 
 
@@ -142,33 +124,58 @@ def processBattery(batt):
 
 
 responses = list()
-emgs = list()
 
 
 def processEMG(emg):
     global responses
-    global emgs
+    global emg_octets
+    neighbors = getNeighbors(k, emg, emg_octets)
+    # print neighbors
+    response = getResponse(neighbors)
 
-    emgs.append(emg)
-    if len(emgs) >= 50:
-        avgs = np.average(np.array(emgs), axis=0)
-        # print avgs
-        neighbors = getNeighbors(emg_octets, avgs, k)
-        print neighbors
-        response = getResponse(neighbors)
-        # responses.append(response)
-    # if len(responses) >= 10:
+    responses.append(response)
+    if len(responses) >= 10:
         print("Gesture: " + str(response))
-        # print(responses)
+        print(responses)
 
-        # winner = Counter(responses).most_common(1)[0][0]
-        # count = 0
-        # for i in range(len(responses)):
-        #     if responses[i] == winner:
-        #         count += 1
-        # print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-        # print('')
-        # responses = list()
+        winner = Counter(responses).most_common(1)[0][0]
+        count = 0
+        for i in range(len(responses)):
+            if responses[i] == winner:
+                count += 1
+        print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+        print('')
+        responses = list()
+
+
+# responses = list()
+# emgs = list()
+
+
+# def processEMG(emg):
+#     global responses
+#     global emgs
+
+#     emgs.append(emg)
+#     if len(emgs) >= 50:
+#         avgs = np.average(np.array(emgs), axis=0)
+#         # print avgs
+#         neighbors = getNeighbors(emg_octets, avgs, k)
+#         print neighbors
+#         response = getResponse(neighbors)
+#         # responses.append(response)
+#     # if len(responses) >= 10:
+#         print("Gesture: " + str(response))
+#         # print(responses)
+
+#         # winner = Counter(responses).most_common(1)[0][0]
+#         # count = 0
+#         # for i in range(len(responses)):
+#         #     if responses[i] == winner:
+#         #         count += 1
+#         # print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+#         # print('')
+#         # responses = list()
 
 
 # load our known ("sample") data.
@@ -205,6 +212,6 @@ def main():
         print("Waiting...")
 
 
-PRINT_DEBUG = False
+PRINT_DEBUG = True
 
 main()
