@@ -130,47 +130,32 @@ def processEMG(emg):
 
     responses.append(response)
     if len(responses) >= 10:
+		winner = Counter(responses).most_common(1)[0][0]
+		print("Gesture: " + str(winner))
+		print(responses)
+		
+		count = 0
+		for i in range(len(responses)):
+			if responses[i] == winner:
+				count += 1
+		print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+		print('')
+		responses = list()
+
+
+emgs = list()
+
+
+def processAverageEMG(emg):
+    global emg_octets
+    global emgs
+
+    emgs.append(emg)
+    if len(emgs) >= 20:
+        avgs = np.average(np.array(emgs), axis=0)
+        neighbors = getNeighbors(k, avgs, emg_octets)
+        response = getResponse(neighbors)
         print("Gesture: " + str(response))
-        print(responses)
-
-        winner = Counter(responses).most_common(1)[0][0]
-        count = 0
-        for i in range(len(responses)):
-            if responses[i] == winner:
-                count += 1
-        print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-        print('')
-        responses = list()
-
-
-# responses = list()
-# emgs = list()
-
-
-# def processEMG(emg):
-#     global responses
-#     global emgs
-
-#     emgs.append(emg)
-#     if len(emgs) >= 50:
-#         avgs = np.average(np.array(emgs), axis=0)
-#         # print avgs
-#         neighbors = getNeighbors(emg_octets, avgs, k)
-#         print neighbors
-#         response = getResponse(neighbors)
-#         # responses.append(response)
-#     # if len(responses) >= 10:
-#         print("Gesture: " + str(response))
-#         # print(responses)
-
-#         # winner = Counter(responses).most_common(1)[0][0]
-#         # count = 0
-#         # for i in range(len(responses)):
-#         #     if responses[i] == winner:
-#         #         count += 1
-#         # print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-#         # print('')
-#         # responses = list()
 
 
 # load our known ("sample") data.
@@ -199,6 +184,7 @@ def main():
     myo_device.services.set_mode(
         myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
     myo_device.add_emg_event_handler(processEMG)
+    # myo_device.add_emg_event_handler(processAverageEMG)
 
     # main program loop. await service notifications.
     while True:
