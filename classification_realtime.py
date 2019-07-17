@@ -34,9 +34,6 @@ def getNeighbors(k, unknown, givens):
     Returns the 'k' most similar neighbors to an
     unknown instance from a set of given values.
     '''
-    if PRINT_DEBUG:
-        print "Now testing:", unknown
-        print "Size of givens:", len(givens)
     distances = []
     # Iterate through each of our known entries,
     # computing the Euclidean distance between the current set
@@ -50,8 +47,6 @@ def getNeighbors(k, unknown, givens):
     neighbors = []
     for i in range(k):
         neighbors.append((distances[i][0], distances[i][1]))
-    if PRINT_DEBUG:
-        print neighbors
     return neighbors
 
 
@@ -68,7 +63,6 @@ def getResponse(neighbors):
             votes[r] += 1/(n[1])  # add the response's distance-weighted vote
         else:
             votes[r] = 0
-        print votes
 
     votes_sorted = sorted(
         votes.iteritems(), key=operator.itemgetter(1), reverse=True)
@@ -112,7 +106,9 @@ def loadData():
                 for o in xrange(0, len(emg_octet_group), channels):
                     emg_octet = emg_octet_group[o:o+channels].tolist()
                     emg_octet.append(k)
-                    emg_octets.append(emg_octet)
+                    # honestly, just never load incomplete vectors. life is so much easier.
+                    if len(emg_octet) == 9:
+                        emg_octets.append(emg_octet)
 
     print('Loaded datasets.')
     emg_octets.sort()
@@ -130,7 +126,6 @@ def processEMG(emg):
     global responses
     global emg_octets
     neighbors = getNeighbors(k, emg, emg_octets)
-    # print neighbors
     response = getResponse(neighbors)
 
     responses.append(response)
@@ -212,6 +207,6 @@ def main():
         print("Waiting...")
 
 
-PRINT_DEBUG = True
+PRINT_DEBUG = False
 
 main()
