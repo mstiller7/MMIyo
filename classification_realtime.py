@@ -151,11 +151,12 @@ def processAverageEMG(emg):
     global emgs
 
     emgs.append(emg)
-    if len(emgs) >= 20:
+    if len(emgs) >= 10:
         avgs = np.average(np.array(emgs), axis=0)
         neighbors = getNeighbors(k, avgs, emg_octets)
         response = getResponse(neighbors)
         print("Gesture: " + str(response))
+        emgs = list()
 
 
 # load our known ("sample") data.
@@ -183,8 +184,8 @@ def main():
     myo_device.services.emg_filt_notifications()
     myo_device.services.set_mode(
         myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
-    myo_device.add_emg_event_handler(processEMG)
-    # myo_device.add_emg_event_handler(processAverageEMG)
+    # myo_device.add_emg_event_handler(processEMG)
+    myo_device.add_emg_event_handler(processAverageEMG)
 
     # main program loop. await service notifications.
     while True:

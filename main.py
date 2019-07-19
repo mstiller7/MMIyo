@@ -48,13 +48,13 @@ myo_device.services.battery_notifications()
 myo_device.services.classifier_notifications()
 myo_device.services.emg_filt_notifications()
 # myo_device.services.emg_raw_notifications()
-# myo_device.services.imu_notifications()
+myo_device.services.imu_notifications()
 
-myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.ALL, myo.ClassifierMode.OFF)
 
-myo_device.add_emg_event_handler(process_emg)
+# myo_device.add_emg_event_handler(process_emg)
 myo_device.add_emg_event_handler(led_emg)
-# myo_device.add_imu_event_handler(process_imu)
+myo_device.add_imu_event_handler(process_imu)
 myo_device.add_sync_event_handler(process_sync)
 # myo_device.add_classifier_event_handler(process_classifier)
 
