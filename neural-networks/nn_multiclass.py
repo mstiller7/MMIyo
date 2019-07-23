@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 np.random.seed(42)
 
-cat_images = np.random.randn(700, 2) + np.array([0, -3])
-mouse_images = np.random.randn(700, 2) + np.array([3, 3])
-dog_images = np.random.randn(700, 2) + np.array([-3, 3])
+cat_images = np.random.randn(700, 2) + np.array([0, 10])
+mouse_images = np.random.randn(700, 2) + np.array([0, 20])
+dog_images = np.random.randn(700, 2) + np.array([0, 30])
 
 feature_set = np.vstack([cat_images, mouse_images, dog_images])
 
@@ -92,5 +92,5 @@ for epoch in range(50000):
 
 	if epoch % 200 == 0:
 		loss = np.sum(-one_hot_labels * np.log(ao))
-		print('Loss function value: ', loss)
+		print('Epoch: ', epoch, 'Loss function value: ', loss)
 		error_cost.append(loss)

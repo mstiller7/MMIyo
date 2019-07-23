@@ -11,6 +11,9 @@ import time
 import operator
 import sys
 
+from fastdtw import fastdtw
+from scipy.spatial.distance import euclidean as eu
+
 # -----------------------------------------------
 # Noosphere: Mathematical Playground
 # -----------------------------------------------
@@ -30,10 +33,14 @@ def euclidean(set_a, set_b, length):
     the mathematical distance between each values up to the
     given 'length' of values.
     '''
+    # a = list(set_a)[:-1]
+    # b = list(set_b)[:-1]
+    # distance, path = fastdtw(a, b, dist=eu)
+    # return distance
     distance = 0
     for x in range(length):
         try:
-            distance += pow((set_a[x]-set_b[x]), 2)
+            distance += pow((set_a[x]-set_b[x]),2)
         except:
             pass
     return math.sqrt(distance)
@@ -155,32 +162,32 @@ for k in emg_data.keys():
                 # print(emg_octet)
 
 set_test = [
-    [130, 162, 75, 101, 87, 306, 195, 74, 'clench'],
-    [108, 133, 70, 109, 83, 294, 174, 74, 'clench'],
-    [118, 134, 68, 122, 95, 301, 176, 75, 'clench'],
-    [117, 143, 73, 104, 91, 320, 169, 85, 'clench'],
-    [120, 141, 67, 107, 86, 272, 182, 102, 'clench'],
-    [121, 131, 62, 116, 90, 283, 186, 106, 'clench'],
-    [129, 123, 59, 116, 95, 316, 197, 107, 'clench'],
-    [124, 117, 62, 106, 93, 288, 197, 104, 'clench'],
-    [126, 117, 54, 112, 85, 271, 186, 95, 'clench'],
-    [135, 115, 62, 110, 93, 294, 176, 71, 'clench']
+    [105, 73, 88, 122, 232, 445, 304, 112, 'fist'],
+    [102, 78, 97, 135, 268, 477, 316, 113, 'fist'],
+    [107, 75, 93, 145, 286, 452, 283, 119, 'fist'],
+    [114, 78, 96, 149, 294, 425, 289, 124, 'fist'],
+    [110, 76, 97, 149, 305, 455, 303, 136, 'fist'],
+    [102, 89, 103, 146, 274, 383, 298, 115, 'fist'],
+    [123, 97, 98, 136, 253, 355, 276, 119, 'fist'],
+    [122, 99, 100, 127, 240, 351, 271, 113, 'fist'],
+    [127, 97, 100, 116, 236, 363, 275, 106, 'fist'],
+    [128, 100, 118, 135, 257, 356, 257, 96, 'fist']
 ]
 
 # set_test = [
-#     [1, -6, 0, 4, 8, 0, 0, 0, 'ext-thumb-index-pinky'],
-#     [-2, -2, 1, 1, -2, 3, -2, -2, 'ext-thumb-index-pinky'],
-#     [0, 1, 0, -5, -2, -11, 2, -6, 'ext-thumb-index-pinky'],
-#     [6, -4, 2, -5, -9, 3, 3, -3, 'ext-thumb-index-pinky'],
-#     [-4, 1, -5, 7, -5, 7, -3, -5, 'ext-thumb-index-pinky'],
-#     [4, -6, -6, 0, -3, 2, -1, -8, 'ext-thumb-index-pinky'],
-#     [-4, -2, -3, 2, 0, -2, -1, -1, 'ext-thumb-index-pinky'],
-#     [-3, 12, -2, 2, 4, -3, -6, -2, 'ext-thumb-index-pinky'],
-#     [-4, 8, 2, -2, -3, 1, 1, -3, 'ext-thumb-index-pinky'],
-#     [3, -2, 1, 0, 6, 9, 0, -4, 'ext-thumb-index-pinky']
+#     [415, 68, 37, 67, 131, 163, 61, 154, 'slap-left'],
+#     [436, 67, 36, 63, 128, 157, 63, 184, 'slap-left'],
+#     [498, 68, 39, 56, 109, 161, 59, 200, 'slap-left'],
+#     [488, 69, 38, 48, 103, 159, 63, 195, 'slap-left'],
+#     [501, 62, 41, 60, 117, 157, 56, 198, 'slap-left'],
+#     [468, 63, 46, 66, 120, 145, 53, 190, 'slap-left'],
+#     [417, 58, 52, 71, 120, 145, 55, 158, 'slap-left'],
+#     [389, 68, 52, 72, 116, 130, 59, 156, 'slap-left'],
+#     [439, 72, 53, 76, 110, 156, 54, 165, 'slap-left'],
+#     [455, 76, 52, 69, 93, 167, 63, 166, 'slap-left']
 # ]
 
-k = 10
+k = 100
 count = 0
 for i in range(len(set_test)):
     neighbors = getNeighbors(emg_octets, set_test[i], k)
@@ -190,9 +197,5 @@ for i in range(len(set_test)):
         count += 1
     print('')
 
-print("Accuracy results: " + str((count/float(k))*100.0) + '%')
-print('')
-
-# TODO
-# When a new dataset of octets is received, classify it by using the 'k-nearest-neighbor' algorithm.
-# We will be testing one octet against one other octet at a time.
+# print("Accuracy results: " + str((count/float(k))*100.0) + '%')
+# print('')

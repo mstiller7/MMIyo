@@ -73,9 +73,6 @@ def quattedGetResponse(neighbors):
     winner = list(votes_sorted[0])
     end = time.time()
 
-    if (PRINT_DEBUG):
-        print("Duration: " + str('%.3f' % (end-start)) + " seconds.")
-
     return winner[0]
 
 
@@ -213,8 +210,8 @@ def main():
     myo_device.services.emg_filt_notifications()
     myo_device.services.set_mode(
         myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
-    # myo_device.add_emg_event_handler(processEMG)
-    myo_device.add_emg_event_handler(processAverageEMG)
+    myo_device.add_emg_event_handler(processEMG)
+    # myo_device.add_emg_event_handler(processAverageEMG)
 
     # main program loop. await service notifications.
     while True:
