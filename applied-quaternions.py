@@ -6,18 +6,20 @@ emgs = list()
 imus = list()
 
 def processEMG(emg):
+    del emgs[:]
     emgs.append(emg)
 
 
 def processIMU(quat, acc, gyro):
+    del imus[:]
     imus.append(quat)
 
 
 def getDotProduct(emg, imu):
-    emg = np.array(emg)
-    imu = np.array(imu)
-    imu.resize(emg.shape)
-    dp = np.matmul(emg, imu)
+    e = np.array(emg)
+    i = np.array(imu)
+    i.resize(e.shape)
+    dp = np.matmul(e, i)
     print dp
     return dp
 
