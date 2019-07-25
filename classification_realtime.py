@@ -49,6 +49,32 @@ def getNeighbors(k, unknown, givens):
         neighbors.append((distances[i][0], distances[i][1]))
     return neighbors
 
+def quattedGetNeighbors(k, unknown, givens):
+    neighbors = []
+    for g in givens:
+        dist = unknown - g
+        neighbors.append(g, dist)
+    neighbors.sort(key=operator.itemgetter(1))
+    return neighbors
+
+def quattedGetResponse(neighbors):
+    votes = {}
+    for n in neighbors:
+        r = n[0][-1]  # get the 'response' index
+        if r in votes:
+            votes[r] += 1/(n[1])  # add the response's distance-weighted vote
+        else:
+            votes[r] = 0
+    
+    votes_sorted = sorted(
+        votes.iteritems(), key=operator.itemgetter(1), reverse=True)
+    if (PRINT_DEBUG):
+        print "Voting concluded. Results:", votes_sorted
+    winner = list(votes_sorted[0])
+    end = time.time()
+
+    return winner[0]
+
 
 def getResponse(neighbors):
     '''
@@ -146,17 +172,17 @@ def processEMG(emg):
 emgs = list()
 
 
-def processAverageEMG(emg):
-    global emg_octets
-    global emgs
+# def processAverageEMG(emg):
+#     global emg_octets
+#     global emgs
 
-    emgs.append(emg)
-    if len(emgs) >= 10:
-        avgs = np.average(np.array(emgs), axis=0)
-        neighbors = getNeighbors(k, avgs, emg_octets)
-        response = getResponse(neighbors)
-        print("Gesture: " + str(response))
-        emgs = list()
+#     emgs.append(emg)
+#     if len(emgs) >= 10:
+#         avgs = np.average(np.array(emgs), axis=0)
+#         neighbors = getNeighbors(k, avgs, emg_octets)
+#         response = getResponse(neighbors)
+#         print("Gesture: " + str(response))
+#         emgs = list()
 
 
 # load our known ("sample") data.
@@ -184,8 +210,8 @@ def main():
     myo_device.services.emg_filt_notifications()
     myo_device.services.set_mode(
         myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
-    # myo_device.add_emg_event_handler(processEMG)
-    myo_device.add_emg_event_handler(processAverageEMG)
+    myo_device.add_emg_event_handler(processEMG)
+    # myo_device.add_emg_event_handler(processAverageEMG)
 
     # main program loop. await service notifications.
     while True:

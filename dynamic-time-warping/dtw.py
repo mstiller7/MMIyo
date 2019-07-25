@@ -74,7 +74,10 @@ slap_left = [
     [397, 71, 46, 67, 105, 155, 63, 200]
 ]
 
-for a, b in itertools.combinations(slap_left, 2):
+for x in slap_left:
+    fist.append(x)
+
+for a, b in itertools.combinations(fist, 2):
     # print a, b
     distance, path = fastdtw(a, b, dist=euclidean)
     print(distance)
