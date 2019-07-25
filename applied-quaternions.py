@@ -1,6 +1,7 @@
 try:
     import cpickle as pickle
 except:
+    print "Falling back to normal pickle crop..."
     import pickle
 import time
 import tkFileDialog
