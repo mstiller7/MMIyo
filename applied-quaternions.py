@@ -1,4 +1,10 @@
+try:
+    import cpickle as pickle
+except:
+    import pickle
 import time
+import tkFileDialog
+import Tkinter
 
 import click
 import numpy as np
@@ -25,6 +31,15 @@ def getDotProduct(emg, imu):
     dp = np.matmul(e, i)
     print dp
     return dp
+
+
+def saveData(data):
+    # timestr = time.strftime("%Y%m%d-%H%M%S")
+    name = raw_input('Save file as: ')
+    filename = "emg_" + name
+    with open("emg-data/" + filename + ".pkl", 'wb') as fp:
+        pickle.dump(data, fp)
+    print 'File saved as:', filename
 
 
 def connectBT():
@@ -55,26 +70,46 @@ def connectBT():
     return myo_device
 
 
-MYO = connectBT()
+def recordData():
+    MYO = connectBT()
+    while True:
+        name = raw_input("Enter gesture name: ")
+        gestures[name] = list()
+        raw_input("Press enter to begin recording.")
+
+        MYO.services.vibrate(1)
+
+        # for 3 seconds...
+        end = time.time() + 3
+        while time.time() < end:
+            # YOU'RE THE BUGGER
+            if MYO.services.waitForNotifications(1):
+                curEntry = (emgs[-1], imus[-1])
+                gestures[name].append(curEntry)
+                # gestures[name].append(getDotProduct(emgs[-1], imus[-1]))
+
+        MYO.services.vibrate(1)
+
+        if click.confirm('Gesture recorded as "' + name + '". Do another?', default=True):
+            del emgs[:]
+            del imus[:]
+            continue
+        else:
+            print gestures
+            saveData(gestures)
+            break
 
 
-while True:
-    name = raw_input("Enter gesture name: ")
-    gestures[name] = list()
-    raw_input("Press enter to begin recording.")
+def loadData():
+    Tkinter.Tk().withdraw()
+    fp = tkFileDialog.askopenfilename()
+    print("Opening " + fp + "...")
+    with open(fp, 'r') as file:
+        emg_data = pickle.load(file)
 
-    MYO.services.vibrate(1)
+    for k, v in emg_data.iteritems():
+        for t in v:
+            print k, t[0], t[1]
 
-    # for 3 seconds...
-    end = time.time() + 3
-    while time.time() < end:
-        # YOU'RE THE BUGGER
-        if MYO.services.waitForNotifications(1):
-            gestures[name].append(getDotProduct(emgs[-1], imus[-1]))
-
-    MYO.services.vibrate(1)
-
-    if click.confirm('Gesture recorded as ' + name + ". Do another?", default=True):
-        continue
-    else:
-        break
+# recordData()
+loadData()
