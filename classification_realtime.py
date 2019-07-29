@@ -71,7 +71,13 @@ def quattedGetResponse(neighbors):
     if (PRINT_DEBUG):
         print "Voting concluded. Results:", votes_sorted
     winner = list(votes_sorted[0])
-    end = time.time()
+    # TODO return a weight: how many percentage are correct?
+    # votes[r] divided by the sum over all r of the votes of r
+    # check consistency and strength of EMG values - e.g. stdev etc.
+    # possible do overlapping windows of reading EMG data
+    # e.g 1 2 3, 2 3 4, 3 4 5...
+    # make a threshold that allows filtering unsure data,
+    # but also doesn't do nothing too often
 
     return winner[0]
 
