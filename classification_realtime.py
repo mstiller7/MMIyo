@@ -44,6 +44,12 @@ def processEMG(emg):
     emgs.append(emg)
 
 def connectBT():
+    '''
+    Order of operations is seriously important here.
+    Don't ask me why.
+    Data-streaming broke when I moved the vibration
+    a few lines down...
+    '''
     print('Connecting to Myo armband...')
 
     # assign the device to a var. get the MAC address first!
@@ -92,15 +98,12 @@ def euclidean(set_a, set_b):
 def getNeighbors(k, unknown, givens):
     '''
     Returns the 'k' most similar neighbors to an
-    unknown instance from a set of given values.
+    unknown instance from a dictionary of given values.
     '''
     neighbors = []
-    # Iterate through each of our known entries,
-    # computing the Euclidean distance between the current set
-    # and our unknown instance.
-    for g in givens:
-        dist = euclidean(unknown, g)
-        neighbors.append((g, dist))
+    for c, l in givens.iteritems():
+        for emg in l:
+            neighbors.append((c, euclidean(unknown, emg)))
     neighbors.sort(key=operator.itemgetter(1))
     return neighbors[:k-1]
 
@@ -216,6 +219,6 @@ def classifyRealtime():
             print('')
             responses = list()
 
-recordData()
-loadData()
+# recordData()
+# loadData()
 classifyRealtime()
