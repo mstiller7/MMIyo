@@ -28,7 +28,7 @@ import open_myo as myo
 # ------------------------------------------------------------------
 
 emgs = list()
-k = 5
+k = 25
 
 PRINT_DEBUG = True
 
@@ -123,7 +123,7 @@ def getResponse(neighbors):
     start = time.time()
     votes = {}
     for n in neighbors:
-        r = n[0][-1]  # get the 'response' index
+        r = n[0]  # get the 'response' index
         if r in votes:
             votes[r] += 1/(n[1])  # add the response's distance-weighted vote
         else:
@@ -191,9 +191,6 @@ def loadData():
     with open(fp, 'r') as file:
         emgs = pickle.load(file)
 
-    for k, v in emgs.iteritems():
-        print k, v
-
     print "Loaded data file."
 
     return emgs
@@ -202,22 +199,25 @@ def classifyRealtime():
     MYO = connectBT()
     data = loadData()
     responses = list()
-    if MYO.services.waitForNotifications(1):
-        # main processing loop. alternately, this could go in the event handler, but meh.
-        responses.append(getResponse(getNeighbors(k, emgs[-1], data)))
+    while True:
+        if MYO.services.waitForNotifications(1):
+            # main processing loop. alternately, this could go in the event handler, but meh.
+            responses.append(getResponse(getNeighbors(k, emgs[-1], data)))
 
-        if len(responses) >= 10:
-            winner = Counter(responses).most_common(1)[0][0]
-            print("Gesture: " + str(winner))
-            print(responses)
-            
-            count = 0
-            for i in range(len(responses)):
-                if responses[i] == winner:
-                    count += 1
-            print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-            print('')
-            responses = list()
+            if len(responses) >= 10:
+                winner = Counter(responses).most_common(1)[0][0]
+                print("Gesture: " + str(winner))
+                print(responses)
+                
+                count = 0
+                for i in range(len(responses)):
+                    if responses[i] == winner:
+                        count += 1
+                print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+                print('')
+                responses = list()
+        else:
+            print "Waiting..."
 
 # recordData()
 # loadData()
