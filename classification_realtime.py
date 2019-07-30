@@ -9,13 +9,14 @@
 try:
     import cpickle as pickle
 except:
-    print "Falling back to normal pickle crop..."
+    print "Falling back to normal Pickle..."
     import pickle
 import math
 import operator
 import time
 import tkFileDialog
 import Tkinter
+from collections import Counter
 
 import click
 import numpy as np
@@ -26,9 +27,7 @@ import open_myo as myo
 # global variables
 # ------------------------------------------------------------------
 
-doProcessing = False
 emgs = list()
-gestures = dict()
 k = 5
 
 PRINT_DEBUG = False
@@ -41,6 +40,7 @@ def processBattery(batt):
     print("Battery level: %d" % batt)
 
 def processEMG(emg):
+    global emgs
     emgs.append(emg)
 
 def connectBT():
@@ -139,6 +139,7 @@ def getResponse(neighbors):
 
 def recordData():
     global emgs
+    gestures = dict()
     MYO = connectBT()
     while True:
         name = raw_input("Enter gesture name: ")
@@ -194,15 +195,19 @@ def classifyRealtime():
         # main processing loop. alternately, this could go in the event handler, but meh.
         responses.append(getResponse(getNeighbors(k, emgs[-1], data)))
 
-        # if len(responses) >= 10:
-        #     winner = Counter(responses).most_common(1)[0][0]
-        #     print("Gesture: " + str(winner))
-        #     print(responses)
+        if len(responses) >= 10:
+            winner = Counter(responses).most_common(1)[0][0]
+            print("Gesture: " + str(winner))
+            print(responses)
             
-        #     count = 0
-        #     for i in range(len(responses)):
-        #         if responses[i] == winner:
-        #             count += 1
-        #     print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-        #     print('')
-        #     responses = list()
+            count = 0
+            for i in range(len(responses)):
+                if responses[i] == winner:
+                    count += 1
+            print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+            print('')
+            responses = list()
+
+recordData()
+loadData()
+classifyRealtime()
