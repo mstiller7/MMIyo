@@ -29,6 +29,7 @@ import open_myo as myo
 
 emgs = list()
 k = 50
+stdThreshold = 150
 
 PRINT_DEBUG = False
 
@@ -151,7 +152,8 @@ def recordData():
     MYO = connectBT()
     while True:
         name = raw_input("Enter gesture name: ")
-        gestures[name] = list()
+        if name not in gestures:
+            gestures[name] = list()
         raw_input("Press enter to begin recording.")
 
         MYO.services.vibrate(1)
@@ -205,17 +207,26 @@ def classifyRealtime():
             # main processing loop. alternately, this could go in the event handler, but meh.
             responses.append(getResponse(getNeighbors(k, emgs[-1], data)))
 
-            if len(responses) >= 10:
-                emgs = list()
-                winner = Counter(responses).most_common(1)[0][0]
-                print("Gesture: " + str(winner))
-                print(responses)
+            if len(emgs) >= 10:
+                std = np.std(emgs)
+                # if the standard deviation isn't "too big"
+                if std < stdThreshold:
+                    winner = Counter(responses).most_common(1)[0][0]
+                    print("Gesture: " + str(winner))
+                    print(responses)
+                    
+                    count = 0
+                    for r in responses:
+                        if r == winner: count += 1
+                    print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
+                    print('')
+
+                    # emgs = list()
+                    # responses = list()
+                else:
+                    print "Garbage data. Discarding."
                 
-                count = 0
-                for r in responses:
-                    if r == winner: count += 1
-                print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
-                print('')
+                emgs = list()
                 responses = list()
         else:
             print "Waiting..."
