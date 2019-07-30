@@ -78,7 +78,7 @@ def recordRealTime():
     training_data = loadData()
     while True:
         if MYO.services.waitForNotifications(1):
-            curEntry = (emgs[-1], imus[-1])
+            # curEntry = (emgs[-1], imus[-1])
             # collect all the emgs & imus separately
             # and analyze them neighborly
             # can we just call them "emus" by now?
