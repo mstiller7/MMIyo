@@ -163,5 +163,5 @@ def getResponse(neighbors):
         votes.iteritems(), key=operator.itemgetter(1), reverse=True)
     return list(votes_sorted[0])[0]
 
-# recordData()
-loadData()
+recordData()
+# loadData()

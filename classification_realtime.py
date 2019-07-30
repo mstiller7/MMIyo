@@ -30,7 +30,7 @@ import open_myo as myo
 emgs = list()
 k = 5
 
-PRINT_DEBUG = False
+PRINT_DEBUG = True
 
 # ------------------------------------------------------------------
 # myo functions
@@ -40,11 +40,12 @@ def processBattery(batt):
     print("Battery level: %d" % batt)
 
 def processEMG(emg):
-    global emgs
+    if PRINT_DEBUG: print emg
     emgs.append(emg)
 
 def connectBT():
     print('Connecting to Myo armband...')
+
     # assign the device to a var. get the MAC address first!
     myo_mac_addr = myo.get_myo()
     myo_device = myo.Device()
@@ -57,13 +58,17 @@ def connectBT():
 
     # never sleep.
     myo_device.services.sleep_mode(1)
+    # set logo & bar LED color to purple.
+    myo_device.services.set_leds([128, 128, 255], [128, 128, 255]) 
+    # short vibration.
+    myo_device.services.vibrate(1)
 
+    # define which services we wish to subscribe to.
+    myo_device.services.battery_notifications()
     myo_device.services.emg_filt_notifications()
-    myo_device.services.set_mode(
-        myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
+    myo_device.services.set_mode(myo.EmgMode.FILT, myo.ImuMode.OFF, myo.ClassifierMode.OFF)
     myo_device.add_emg_event_handler(processEMG)
 
-    myo_device.services.vibrate(1)
     print "Myo armband connected."
 
     return myo_device
@@ -154,9 +159,12 @@ def recordData():
             # YOU'RE THE BUGGER
             if MYO.services.waitForNotifications(1):
                 gestures[name].append(emgs[-1])
+                continue
+            print "Waiting..."
 
         MYO.services.vibrate(1)
 
+        print gestures
         if click.confirm('Gesture recorded as "' + name + '". Do another?', default=True):
             del emgs[:]
             continue
