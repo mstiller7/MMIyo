@@ -28,9 +28,9 @@ import open_myo as myo
 # ------------------------------------------------------------------
 
 emgs = list()
-k = 25
+k = 50
 
-PRINT_DEBUG = True
+PRINT_DEBUG = False
 
 # ------------------------------------------------------------------
 # myo functions
@@ -103,9 +103,9 @@ def getNeighbors(k, unknown, givens):
     neighbors = []
     for c, l in givens.iteritems():
         for emg in l:
-            neighbors.append((c, euclidean(unknown, emg)))
+            neighbors.append((c, euclidean(unknown, emg), emg))
     neighbors.sort(key=operator.itemgetter(1))
-    return neighbors[:k-1]
+    return neighbors[:k]
 
 # TODO return a weight: how many percentage are correct?
 # votes[r] divided by the sum over all r of the votes of r
@@ -196,6 +196,7 @@ def loadData():
     return emgs
 
 def classifyRealtime():
+    global emgs
     MYO = connectBT()
     data = loadData()
     responses = list()
@@ -205,14 +206,14 @@ def classifyRealtime():
             responses.append(getResponse(getNeighbors(k, emgs[-1], data)))
 
             if len(responses) >= 10:
+                emgs = list()
                 winner = Counter(responses).most_common(1)[0][0]
                 print("Gesture: " + str(winner))
                 print(responses)
                 
                 count = 0
-                for i in range(len(responses)):
-                    if responses[i] == winner:
-                        count += 1
+                for r in responses:
+                    if r == winner: count += 1
                 print('Precision: ' + str((count/float(len(responses)))*100.0) + '%')
                 print('')
                 responses = list()
